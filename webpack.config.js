@@ -4,9 +4,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: 'bundle.js',
+    filename: 'bundle.[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
-    clean: true,
+    clean: true
   },
   module: {
     rules: [
@@ -14,10 +14,7 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
+          loader: 'babel-loader'
         }
       }
     ]
@@ -25,19 +22,24 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-      }
+      minify: true
     })
   ],
   devServer: {
     port: 3000,
     hot: true,
     compress: true,
-    open: false,
     historyApiFallback: true,
+    static: {
+      directory: path.join(__dirname, 'public')
+    }
   },
   devtool: 'source-map',
-  mode: 'development'
+  mode: 'development',
+  resolve: {
+    extensions: ['.js', '.json'],
+    alias: {
+      '@': path.resolve(__dirname, 'src')
+    }
+  }
 };
