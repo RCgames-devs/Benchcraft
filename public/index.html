@@ -3,161 +3,164 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Benchcraft Prototype</title>
-    <style>
-      :root {
-        --bg: rgba(11, 16, 22, 0.7);
-        --panel: rgba(18, 24, 32, 0.5);
-        --text: #edf6ff;
-        --muted: #afc8dc;
-        --accent: #67d4ff;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html, body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #7ecbff;
-        color: var(--text);
-        font-family: Arial, sans-serif;
-      }
-
-      canvas {
-        display: block;
-        width: 100vw;
-        height: 100vh;
-      }
-
-      #hud {
-        position: fixed;
-        left: 20px;
-        top: 20px;
-        z-index: 10;
-        background: var(--panel);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 12px;
-        padding: 12px 16px;
-        backdrop-filter: blur(6px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      }
-
-      #hud h1 {
-        margin: 0 0 8px 0;
-        font-size: 20px;
-        letter-spacing: 0.05em;
-      }
-
-      .stat {
-        margin: 4px 0;
-        font-size: 14px;
-        color: var(--muted);
-      }
-
-      .stat strong {
-        color: var(--text);
-      }
-
-      #crosshair {
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        width: 20px;
-        height: 20px;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-        z-index: 9;
-      }
-
-      #crosshair::before,
-      #crosshair::after {
-        content: "";
-        position: absolute;
-        background: rgba(255,255,255,0.8);
-        box-shadow: 0 0 4px rgba(0,0,0,0.5);
-      }
-
-      #crosshair::before {
-        left: 9px;
-        top: 0;
-        width: 2px;
-        height: 20px;
-      }
-
-      #crosshair::after {
-        left: 0;
-        top: 9px;
-        width: 20px;
-        height: 2px;
-      }
-
-      #help {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        z-index: 10;
-        background: var(--panel);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 12px;
-        padding: 12px 16px;
-        backdrop-filter: blur(6px);
-        color: var(--muted);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        font-size: 12px;
-        line-height: 1.65;
-      }
-
-      #help strong {
-        color: var(--text);
-      }
-
-      #message {
-        position: fixed;
-        left: 50%;
-        bottom: 22px;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.4);
-        color: var(--text);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 999px;
-        padding: 10px 18px;
-        font-size: 13px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        z-index: 15;
-      }
-
-      #message.visible {
-        opacity: 1;
-      }
-    </style>
+    <title>Benchcraft</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="hud">
-      <h1>Benchcraft</h1>
-      <div class="stat"><strong>FPS:</strong> <span id="fps">0</span></div>
-      <div class="stat"><strong>Blocks:</strong> <span id="blockCount">0</span></div>
-      <div class="stat"><strong>Position:</strong> <span id="position">0, 0, 0</span></div>
+    <div id="app">
+      <!-- Title Screen -->
+      <div id="titleScreen" class="screen active">
+        <div class="title-container">
+          <h1 class="title">BENCHCRAFT</h1>
+          <p class="subtitle">Build Beyond Your Limits</p>
+          <div class="button-group">
+            <button class="btn btn-primary" onclick="app.showWorldsScreen()">Play</button>
+            <button class="btn btn-secondary" onclick="app.showSettings()">Settings</button>
+            <button class="btn btn-secondary" onclick="app.showAbout()">About</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Worlds Screen -->
+      <div id="worldsScreen" class="screen">
+        <div class="worlds-container">
+          <div class="header">
+            <h2>Your Worlds</h2>
+            <button class="btn btn-primary" onclick="app.showCreateWorldScreen()">+ Create World</button>
+          </div>
+          <div id="worldsList" class="worlds-list"></div>
+          <button class="btn btn-secondary back-btn" onclick="app.showTitleScreen()">Back to Menu</button>
+        </div>
+      </div>
+
+      <!-- Create World Screen -->
+      <div id="createWorldScreen" class="screen">
+        <div class="create-world-container">
+          <h2>Create New World</h2>
+          <form id="createWorldForm" onsubmit="app.createWorld(event)">
+            <div class="form-group">
+              <label for="worldName">World Name</label>
+              <input type="text" id="worldName" placeholder="My World" required />
+            </div>
+
+            <div class="form-group">
+              <label for="worldSeed">Seed (optional)</label>
+              <input type="text" id="worldSeed" placeholder="Random seed" />
+            </div>
+
+            <div class="form-group">
+              <label for="worldDifficulty">Difficulty</label>
+              <select id="worldDifficulty">
+                <option value="peaceful">Peaceful</option>
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="worldGamemode">Gamemode</label>
+              <select id="worldGamemode">
+                <option value="survival">Survival</option>
+                <option value="creative" selected>Creative</option>
+                <option value="adventure">Adventure</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="pvpEnabled" />
+                PvP Enabled
+              </label>
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary">Create World</button>
+              <button type="button" class="btn btn-secondary" onclick="app.showWorldsScreen()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="gameScreen" class="screen">
+        <div id="hud">
+          <h1>Benchcraft</h1>
+          <div class="stat"><strong>FPS:</strong> <span id="fps">0</span></div>
+          <div class="stat"><strong>Blocks:</strong> <span id="blockCount">0</span></div>
+          <div class="stat"><strong>Position:</strong> <span id="position">0, 0, 0</span></div>
+          <div class="stat"><strong>World:</strong> <span id="worldName">-</span></div>
+        </div>
+
+        <div id="crosshair">
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
+        </div>
+
+        <div id="help">
+          <strong>Controls</strong><br />
+          W/A/S/D = Move<br />
+          Space = Jump<br />
+          Mouse = Look<br />
+          Left Click = Break block<br />
+          Right Click = Place block<br />
+          Esc = Menu
+        </div>
+
+        <div id="message">Click to lock cursor</div>
+
+        <div id="pauseMenu" class="pause-menu hidden">
+          <div class="pause-content">
+            <h2>Paused</h2>
+            <button class="btn btn-primary" onclick="app.resumeGame()">Resume</button>
+            <button class="btn btn-secondary" onclick="app.showWorldsScreen()">Back to Worlds</button>
+            <button class="btn btn-secondary" onclick="app.showTitleScreen()">Main Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Screen -->
+      <div id="settingsScreen" class="screen">
+        <div class="settings-container">
+          <h2>Settings</h2>
+          <div class="form-group">
+            <label for="masterVolume">Master Volume</label>
+            <input type="range" id="masterVolume" min="0" max="100" value="80" />
+          </div>
+          <div class="form-group">
+            <label for="renderDistance">Render Distance</label>
+            <input type="range" id="renderDistance" min="2" max="16" value="8" />
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="particlesEnabled" checked />
+              Particles Enabled
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="animatedWater" checked />
+              Animated Water
+            </label>
+          </div>
+          <button class="btn btn-secondary back-btn" onclick="app.showTitleScreen()">Back</button>
+        </div>
+      </div>
+
+      <!-- About Screen -->
+      <div id="aboutScreen" class="screen">
+        <div class="about-container">
+          <h2>About Benchcraft</h2>
+          <p>Benchcraft is a Minecraft-inspired 3D voxel sandbox game.</p>
+          <p><strong>Version:</strong> 0.1.0</p>
+          <p><strong>Developed by:</strong> RCgames-devs</p>
+          <p><strong>License:</strong> Eclipse Public License 2.0</p>
+          <p>Built with Three.js and WebGL for a smooth, immersive voxel experience.</p>
+          <button class="btn btn-secondary back-btn" onclick="app.showTitleScreen()">Back</button>
+        </div>
+      </div>
     </div>
 
-    <div id="crosshair"></div>
-
-    <div id="help">
-      <strong>Controls</strong><br />
-      W/A/S/D = Move<br />
-      Space = Jump<br />
-      Mouse = Look<br />
-      Left Click = Break block<br />
-      Right Click = Place block<br />
-      Click to lock cursor
-    </div>
-
-    <div id="message">Click to lock pointer</div>
-
-    <script type="module" src="../src/index.js"></script>
+    <script type="module" src="../src/app.js"></script>
   </body>
 </html>

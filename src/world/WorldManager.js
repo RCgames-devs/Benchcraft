@@ -64,7 +64,7 @@ export class WorldManager {
       }
     }
 
-    keysToUnload.forEach(key => {
+    keysToUnload.forEach((key) => {
       const [x, z] = key.split(',').map(Number);
       this.unloadChunk(x, z);
     });
@@ -75,8 +75,8 @@ export class WorldManager {
     const chunk = this.chunks.get(this.getChunkKey(chunkCoords.x, chunkCoords.z));
     if (!chunk) return BlockTypes.AIR;
 
-    const localX = x - (chunkCoords.x * this.chunkSize);
-    const localZ = z - (chunkCoords.z * this.chunkSize);
+    const localX = x - chunkCoords.x * this.chunkSize;
+    const localZ = z - chunkCoords.z * this.chunkSize;
     return chunk.getBlock(localX, y, localZ);
   }
 
@@ -84,8 +84,8 @@ export class WorldManager {
     const chunkCoords = this.getChunkCoords(x, z);
     const chunk = this.getOrCreateChunk(chunkCoords.x, chunkCoords.z);
 
-    const localX = x - (chunkCoords.x * this.chunkSize);
-    const localZ = z - (chunkCoords.z * this.chunkSize);
+    const localX = x - chunkCoords.x * this.chunkSize;
+    const localZ = z - chunkCoords.z * this.chunkSize;
     chunk.setBlock(localX, y, localZ, blockType);
   }
 
