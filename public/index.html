@@ -1,145 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benchcraft - Build Beyond Your Limits</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Benchcraft Prototype</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      :root {
+        --bg: rgba(11, 16, 22, 0.7);
+        --panel: rgba(18, 24, 32, 0.5);
+        --text: #edf6ff;
+        --muted: #afc8dc;
+        --accent: #67d4ff;
+      }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #1a1a1a;
-            color: #fff;
-            overflow: hidden;
-        }
+      * {
+        box-sizing: border-box;
+      }
 
-        #canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #7ecbff;
+        color: var(--text);
+        font-family: Arial, sans-serif;
+      }
 
-        #ui {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            font-size: 14px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-        }
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
 
-        .stats {
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
+      #hud {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        z-index: 10;
+        background: var(--panel);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 12px 16px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      }
 
-        .stats div {
-            margin: 5px 0;
-        }
+      #hud h1 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        letter-spacing: 0.05em;
+      }
 
-        #crosshair {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            z-index: 50;
-            pointer-events: none;
-        }
+      .stat {
+        margin: 4px 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
 
-        .crosshair-h {
-            position: absolute;
-            width: 8px;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.5);
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+      .stat strong {
+        color: var(--text);
+      }
 
-        .crosshair-v {
-            position: absolute;
-            width: 1px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.5);
-            top: 50%;
-            left: 50%;
-            transform: translateY(-50%);
-        }
+      #crosshair {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 9;
+      }
 
-        #controls {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            font-size: 12px;
-            opacity: 0.7;
-            max-width: 300px;
-        }
+      #crosshair::before,
+      #crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(255,255,255,0.8);
+        box-shadow: 0 0 4px rgba(0,0,0,0.5);
+      }
 
-        .control-item {
-            margin: 5px 0;
-        }
+      #crosshair::before {
+        left: 9px;
+        top: 0;
+        width: 2px;
+        height: 20px;
+      }
 
-        #loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 200;
-            display: none;
-        }
+      #crosshair::after {
+        left: 0;
+        top: 9px;
+        width: 20px;
+        height: 2px;
+      }
 
-        .loader {
-            border: 4px solid #333;
-            border-radius: 50%;
-            border-top: 4px solid #0088ff;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
+      #help {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 10;
+        background: var(--panel);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 12px 16px;
+        backdrop-filter: blur(6px);
+        color: var(--muted);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        font-size: 12px;
+        line-height: 1.65;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      #help strong {
+        color: var(--text);
+      }
+
+      #message {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--text);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-size: 13px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 15;
+      }
+
+      #message.visible {
+        opacity: 1;
+      }
     </style>
-</head>
-<body>
-    <div id="ui">
-        <div class="stats">
-            <div>FPS: <span id="fps">0</span></div>
-            <div>Chunks: <span id="chunks">0</span></div>
-            <div>Blocks: <span id="blocks">0</span></div>
-            <div>Position: <span id="position">0, 0, 0</span></div>
-        </div>
+  </head>
+  <body>
+    <div id="hud">
+      <h1>Benchcraft</h1>
+      <div class="stat"><strong>FPS:</strong> <span id="fps">0</span></div>
+      <div class="stat"><strong>Blocks:</strong> <span id="blockCount">0</span></div>
+      <div class="stat"><strong>Position:</strong> <span id="position">0, 0, 0</span></div>
     </div>
 
-    <div id="crosshair">
-        <div class="crosshair-h"></div>
-        <div class="crosshair-v"></div>
+    <div id="crosshair"></div>
+
+    <div id="help">
+      <strong>Controls</strong><br />
+      W/A/S/D = Move<br />
+      Space = Jump<br />
+      Mouse = Look<br />
+      Left Click = Break block<br />
+      Right Click = Place block<br />
+      Click to lock cursor
     </div>
 
-    <div id="controls">
-        <div class="control-item"><strong>Controls:</strong></div>
-        <div class="control-item">W/A/S/D - Move</div>
-        <div class="control-item">Space - Jump</div>
-        <div class="control-item">Mouse - Look Around</div>
-        <div class="control-item">Left Click - Destroy Block</div>
-        <div class="control-item">Right Click - Place Block</div>
-        <div class="control-item">Escape - Toggle Mouse Lock</div>
-    </div>
+    <div id="message">Click to lock pointer</div>
 
-    <div id="loading">
-        <div class="loader"></div>
-        <div>Loading world...</div>
-    </div>
-</body>
+    <script type="module" src="../src/index.js"></script>
+  </body>
 </html>
